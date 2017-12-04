@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# LaTex files
+*.aux
+*.log
+*.pdf
+*.synctex.gz
