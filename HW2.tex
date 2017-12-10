@@ -24,18 +24,31 @@
 \maketitle
 
 \section*{A. Simple Player}
-\subsection*{1. SImple Player vs. Random Player}
-dsadsad
+\subsection*{1. Simple Player vs. Random Player}
+The simple player's heuristic just tries to maximize the number of units the player has over the opponent (unless a goal state / lose state is acheived), which is a \textbf{very simple} method. When running against the \emph{random} player, the simple player one 2 out of 3 matches - both as the starting player and not. \\~\\
+This really indicates the fact that the simple heuristic is no a good strategy, as it's prone to lead to foolish moves an expert player would never make, and thus the random player was able to beat it (twice!)
 
 \section*{B. Better Player}
 \subsection*{1. Heuristic Explanation}
-dsa
+We will use a heuristic comprised of the following factors
+\begin{itemize}
+\item \textbf{Coin Parity} - Similar to what the Simple Player attempted, only a negative weight will be set for having less units than the opponent, and instead of looking at the difference we will look at the share of coins owned by the player, e.g.
+$$
+	sign(my > op) \cdot \frac {my}{my + op}
+$$
+\item \textbf{Corner Control} - Corners are very important in Reversi, so we will reward the player for controlling conrners, and similarly punish them for giving up corners to the opponent
+\item \textbf{Corner Closeness} - In contrast with common intuition to the previous factor, being close to a corner will allow the opponent to get many coins in a single move, so we will reward the player when they force the opponent into this state
+\item \textbf{Mobility} - SImilar to coin parity, only this time we look at the number of possible moves each player has \emph{from the current state} (as if they were playing)
+\end{itemize}
+
+Finally, a weighted average will be computed.
 
 \subsection*{2. Heuristic Motivation}
-dsa
+Explained in the previous segment
 
 \subsection*{4. Simple Player vs. Better Player}
-dsa
+The better player won all 6 matches (since we tuned the weights...) \\~\\
+Since both players are deterministic, there is no sense in running multiple occurances of the same setup...
 
 \section*{D. Alpha-Beta Player}
 \subsection*{3. Comparison with Min-Max player}
