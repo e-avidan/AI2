@@ -89,8 +89,27 @@ class MiniMaxAlgorithm:
         :param maximizing_player: Whether this is a max node (True) or a min node (False).
         :return: A tuple: (The min max algorithm value, The move in case of max node or None in min mode)
         """
-        return self.utility(state), None
+        if depth == 0: # Selective-das-dosa-0
+            return (self.utility(state), None)
 
+        moves = state.get_possible_moves()
+
+        if len(moves) == 0: # todo TIES
+            return ((+1 if state.get_winner() == self.my_color else -1) * INFINITY, None)
+            
+        my_turn = maximizing_player # state.curr_player == self.my_color
+        f = max if my_turn else min
+        
+        child_res = ((self.search(_expand_state(state, m), depth-1, not maximizing_player)[0], m) for m in moves)
+        child_res = provide_while(child_res, self.no_more_time)
+
+        val = f(child_res, key=lambda t: t[0], default=(-INFINITY if my_turn else INFINITY, None))
+        return val if my_turn else (val[0], None)
+
+def _expand_state(state, move):
+    state = copy.deepcopy(state)
+    state.perform_move(move[0], move[1])
+    return state
 
 class MiniMaxWithAlphaBetaPruning:
 
@@ -121,3 +140,10 @@ class MiniMaxWithAlphaBetaPruning:
         :return: A tuple: (The alpha-beta algorithm value, The move in case of max node or None in min mode)
         """
         return self.utility(state), None
+
+def provide_while(iter, stop):
+    for i in iter:
+        if stop():
+            return
+        
+        yield i
