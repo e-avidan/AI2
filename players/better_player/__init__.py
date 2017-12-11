@@ -5,7 +5,7 @@
 
 import abstract
 from utils import INFINITY, run_with_limited_time, ExceededTimeError
-from Reversi.consts import EM, OPPONENT_COLOR, BOARD_COLS, BOARD_ROWS
+from Reversi.consts import EM, OPPONENT_COLOR, BOARD_COLS, BOARD_ROWS, TIE
 import time
 import copy
 from collections import defaultdict
@@ -55,7 +55,9 @@ class Player(abstract.AbstractPlayer):
     def utility(self, state):
         moves = len(state.get_possible_moves())
         if moves == 0:
-            return INFINITY if state.curr_player != self.color else -INFINITY
+            winner = state.get_winner()
+            res = 0 if winner == TIE else (+1 if winner == state.curr_player else -1)
+            return res * INFINITY
 
         opposite_state = copy.deepcopy(state)
         opposite_state.curr_player = OPPONENT_COLOR[state.curr_player]
