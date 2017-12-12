@@ -28,6 +28,9 @@ POSITIONS = [
 TOTAL_POSITION_SCORE = float(sum(sum(abs(v) for v in row) for row in POSITIONS))
 MAX_POSITION_SCORE = float(max(max(v for v in row) for row in POSITIONS))
 
+X = [-1, -1, 0, 1, 1, 1, 0, -1];
+Y = [0, 1, 1, 1, 0, -1, -1, -1];
+
 class Player(abstract.AbstractPlayer):
     def __init__(self, setup_time, player_color, time_per_k_turns, k):
         abstract.AbstractPlayer.__init__(self, setup_time, player_color, time_per_k_turns, k)
@@ -105,46 +108,63 @@ class Player(abstract.AbstractPlayer):
         is_early_game = units < 15
         is_late_game = 35 < units
 
-        # Coin Parity
-        parity = my_units - op_units
-        parity /= float(units)
+        # Parity
+        p = 0 if my_units == op_units else max(my_units, op_units)
+        p *= player_mod / float(units)
 
         # Stability
-        my_stability = sum(sum(POSITIONS[r][c] if color == self.color else 0 for c, color in enumerate(row)) for r, row in enumerate(state.board))
-        op_stability = sum(sum(POSITIONS[r][c] if color == op_color else 0 for c, color in enumerate(row)) for r, row in enumerate(state.board))
-        stability = (my_stability - op_stability)
-        stability /= float(TOTAL_POSITION_SCORE)
+        d = self._get_stability_value(state, self.color) - self._get_stability_value(state, op_color)
 
-        # Best Move
-        best_move = player_mod * max((POSITIONS[m[0]][m[1]] for m in moves))
-        best_move /= float(MAX_POSITION_SCORE)
+        # Frontier Disks
+        my_frontier = self._get_frontier_value(state, self.color)
+        op_frontier = self._get_frontier_value(state, op_color)
+
+        f = 0 if my_frontier == op_frontier else max(my_frontier, op_frontier)
+        f *= -player_mod / float(max(1, my_frontier + op_frontier))
 
         # Corner Occupancy
-        c = (self._get_corner_occupancy(state, self.color) / (self._get_corner_occupancy(state, op_color) * 2)) ** player_mod
-        c = player_mod * (5 ** c)
-        c /= 5 ** 4.01
-        # stability += c
+        c = self._get_corner_occupancy(state, self.color) - self._get_corner_occupancy(state, op_color)
+        # c *= 25
 
-        # Can Win Bonus
-        bonus = 500 if my_units > 40 else (200 if my_units > 32 else (10 if units == 32 else 0))
-        bonus /= 500.0
+        # Corner Closeness
+        l = self._get_corner_close(state, self.color) - 8 ** self._get_corner_close(state, op_color)
+        # l *= -12.5
+
+        # Mobility
+        m = 0 if my_moves == op_moves else max(my_moves, op_moves)
+        m *= player_mod / float(max(1, my_moves + op_moves))
 
         if is_early_game:
-            h = -parity + 4 * stability
-        elif is_late_game:
-            h = 10 * parity + 50 * stability + 4 * bonus
+            h = -5 * p + 1000 * c + 100 * l + f + 30*d
+        if is_late_game:
+            h = 50 * p + 100 * c + 1000 * l + 10*f + 5*d
         else:
-            h = 2 * parity + 3 * stability + best_move
+            h = 100 * p + 10 * c + 50 * l + m + 50*f + 50 * d
 
-        return min(max(h, -INFINITY + 1), INFINITY - 1)
-    
+        return h
+
+    def _get_stability_value(self, state, target_color):
+        return sum(sum(POSITIONS[r][c] if color == target_color else 0 for c, color in enumerate(row)) for r, row in enumerate(state.board))
+
+    def _get_frontier_value(self, state, target_color):
+        return sum(sum(sum(self._get_frontier_cell_value(state, r, c, k) for k in range(0, 8)) for c, color in enumerate(row) if color == target_color) for r, row in enumerate(state.board))
+
+    def _get_frontier_cell_value(self, state, x, y, k):
+        x += X[k]
+        y += Y[k]
+
+        if x < 0 or 8 <= x or y < 0 or 8 <= y:
+            return 0
+
+        return +1 if state.board[x][y] == self.color else -1
+
     def _get_corner_occupancy(self, state, color):
         board = state.board
 
         return float((board[0][0] == color) +
                (board[BOARD_ROWS-1][0] == color) +
                (board[0][BOARD_COLS-1] == color) +
-               (board[BOARD_ROWS-1][BOARD_COLS-1] == color)) + 0.1
+               (board[BOARD_ROWS-1][BOARD_COLS-1] == color))
 
     def _get_corner_close(self, state, color):
         board = state.board

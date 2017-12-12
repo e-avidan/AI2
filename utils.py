@@ -7,7 +7,7 @@ import time
 import copy
 import operator
 
-INFINITY = float(6000)
+INFINITY = float(600000000)
 
 
 class ExceededTimeError(RuntimeError):
