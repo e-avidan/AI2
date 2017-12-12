@@ -105,12 +105,12 @@ class Player(abstract.AbstractPlayer):
         player_mod = -1 if state.curr_player != self.color else +1
 
         units = my_units + op_units
-        is_early_game = units < 15
-        is_late_game = 35 < units
+        is_early_game = units < 20
+        is_late_game = 40 < units
 
         # Parity
         p = 0 if my_units == op_units else max(my_units, op_units)
-        p *= player_mod / float(units)
+        p *= player_mod * 100 / float(units)
 
         # Stability
         d = self._get_stability_value(state, self.color) - self._get_stability_value(state, op_color)
@@ -120,27 +120,29 @@ class Player(abstract.AbstractPlayer):
         op_frontier = self._get_frontier_value(state, op_color)
 
         f = 0 if my_frontier == op_frontier else max(my_frontier, op_frontier)
-        f *= -player_mod / float(max(1, my_frontier + op_frontier))
+        f *= -player_mod * 100 / float(max(1, my_frontier + op_frontier))
 
         # Corner Occupancy
         c = self._get_corner_occupancy(state, self.color) - self._get_corner_occupancy(state, op_color)
         # c *= 25
 
         # Corner Closeness
-        l = self._get_corner_close(state, self.color) - 8 ** self._get_corner_close(state, op_color)
-        # l *= -12.5
+        l = self._get_corner_close(state, self.color) - self._get_corner_close(state, op_color)
+        l *= -1 # -12.5
 
         # Mobility
         m = 0 if my_moves == op_moves else max(my_moves, op_moves)
-        m *= player_mod / float(max(1, my_moves + op_moves))
+        m *= player_mod * 100 / float(max(1, my_moves + op_moves))
 
+        vec = (   p,    c,     l,    f,    d,    m)
         if is_early_game:
-            h = -5 * p + 1000 * c + 100 * l + f + 30*d
-        if is_late_game:
-            h = 50 * p + 100 * c + 1000 * l + 10*f + 5*d
+            w = (-500, +500, +500, -100, +500, +500)
+        elif is_late_game:
+            w = (+500, +500, +500, +500, +999, +999)
         else:
-            h = 100 * p + 10 * c + 50 * l + m + 50*f + 50 * d
+            w = (+999, +000, +100, +100, +0, +500)
 
+        h = sum((vec[i] * w[i] for i in range(0, len(vec))))
         return h
 
     def _get_stability_value(self, state, target_color):
