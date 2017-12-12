@@ -153,11 +153,11 @@ class MiniMaxWithAlphaBetaPruning:
 
         my_turn = maximizing_player # state.curr_player == self.my_color
         f = max if my_turn else min
+        target_param = ALPHA if my_turn else BETA
 
         params = { }
         params[ALPHA] = alpha
         params[BETA] = beta
-        target_param = ALPHA if my_turn else BETA
 
         child_res = ((self.search(_expand_state(state, m), depth-1, params[ALPHA], params[BETA], not maximizing_player)[0], m) for m in moves)
         child_res = after_each(child_res, lambda v: operator.setitem(params, target_param, f(params[target_param], v[0])))

@@ -52,7 +52,13 @@ Since both players are deterministic, there is no sense in running multiple occu
 
 \section*{D. Alpha-Beta Player}
 \subsection*{3. Comparison with Min-Max player}
-dsa
+We expect the alpha-beta player to have the upper hand when planning complex moves, since it can acheive more depth (when pruning is available), and thus `outsmart" the other player. \\~\\
+However, the following must be taken into account
+\begin{itemize}
+\item When the time per turn is large, there shouldn't be much difference between players (unless somehow the extra depths allows the alpha-beta player to steer towards a guaranteed victory)
+\item When nearing the end of the game, the min-max player would have equal chances, and thus a tie is probable
+\item Under optimal conditions where the strategy tree is sorted (and thus pruning is optimal) and the time per turn is very small, the min-max player should fail completely
+\end{itemize}
 
 \section*{E. Further Improvements}
 \subsection*{1. Expected Best Player}

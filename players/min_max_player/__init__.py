@@ -13,7 +13,7 @@ class Player(ParentPlayer):
     def get_move(self, game_state, possible_moves):
         if len(possible_moves) == 1:
             return possible_moves[0]
-        
+
         self.clock = time.time()
         self.time_for_current_move = self.time_remaining_in_round / self.turns_remaining_in_round - 0.05
 

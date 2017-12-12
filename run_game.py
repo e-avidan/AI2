@@ -29,6 +29,12 @@ class GameRunner:
         self.players = {}
 
         # Dynamically importing the players. This allows maximum flexibility and modularity.
+        if len(x_player) < 7 or x_player[-7:] != "_player":
+            x_player = x_player + "_player"
+
+        if len(o_player) < 7 or o_player[-7:] != "_player":
+            o_player = o_player + "_player"
+
         self.x_player = 'players.{}'.format(x_player)
         self.o_player = 'players.{}'.format(o_player)
         __import__(self.x_player)

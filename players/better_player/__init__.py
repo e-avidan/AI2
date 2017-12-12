@@ -4,7 +4,7 @@
 #===============================================================================
 
 import abstract
-from utils import INFINITY, run_with_limited_time, ExceededTimeError
+from utils import INFINITY, run_with_limited_time, ExceededTimeError, _expand_state
 from Reversi.consts import EM, OPPONENT_COLOR, BOARD_COLS, BOARD_ROWS, TIE
 import time
 import copy
@@ -13,6 +13,20 @@ from collections import defaultdict
 #===============================================================================
 # Player
 #===============================================================================
+
+POSITIONS = [
+   [99, -8, 8, 6, 6, 8, -8, 99],
+   [-8, -24, -4, -3, -3, -4, -24, -8],
+   [8, -4, 7, 4, 4, 7, -4, 8],
+   [6, 1, 4, 0, 0, 4, 1, 6],
+   [6, 1, 4, 0, 0, 4, 1, 6],
+   [8, -4, 7, 4, 4, 7, -4, 8],
+   [-8, -24, -4, -3, -3, -4, -24, -8],
+   [99, -8, 8, 6, 6, 8, -8, 99]
+]
+
+TOTAL_POSITION_SCORE = float(sum(sum(abs(v) for v in row) for row in POSITIONS))
+MAX_POSITION_SCORE = float(max(max(v for v in row) for row in POSITIONS))
 
 class Player(abstract.AbstractPlayer):
     def __init__(self, setup_time, player_color, time_per_k_turns, k):
@@ -52,49 +66,85 @@ class Player(abstract.AbstractPlayer):
 
         return best_move
 
-    def utility(self, state):
-        moves = len(state.get_possible_moves())
-        if moves == 0:
-            winner = state.get_winner()
-            res = 0 if winner == TIE else (+1 if winner == state.curr_player else -1)
-            return res * INFINITY
-
-        opposite_state = copy.deepcopy(state)
-        opposite_state.curr_player = OPPONENT_COLOR[state.curr_player]
-        opposite_moves = len(opposite_state.get_possible_moves())
-
+    def utility(self, state, is_expanded = False):
         op_color = OPPONENT_COLOR[self.color]
-        my_moves = opposite_moves if state.curr_player != self.color else moves
-        op_moves = moves if state.curr_player != self.color else opposite_moves
 
-        my_units = sum(sum(c == self.color for c in row) for row in state.board)
-        op_units = sum(sum(c == op_color for c in row) for row in state.board)
+        # Exhaust no-brainer states
+        ran_once = 0
+        while not ran_once or len(moves) <= 1:
+            ran_once = True
+            moves = state.get_possible_moves()
 
-        if my_units == 0:
-            return -INFINITY
-        if op_units == 0:
-            return INFINITY
+            reverse_state = copy.deepcopy(state)
+            reverse_state.curr_player = OPPONENT_COLOR[state.curr_player]
+            reverse_moves = reverse_state.get_possible_moves()
+
+            my_moves = len(reverse_moves if state.curr_player != self.color else moves)
+            op_moves = len(moves if state.curr_player != self.color else reverse_moves)
+
+            my_units = sum(sum(c == self.color for c in row) for row in state.board)
+            op_units = sum(sum(c == op_color for c in row) for row in state.board)
+            
+            if my_units == 0:
+                return -INFINITY
+            if op_units == 0:
+                return INFINITY
+            if my_moves == 0 or op_moves == 0:
+                return 0 if my_units == op_units else (-INFINITY if my_units < op_units else +INFINITY)
+
+            if len(moves) != 1:
+                break
+
+            # Go to next state
+            state = copy.deepcopy(state)
+            state.perform_move(moves[0][0], moves[0][1])
+
+        player_mod = -1 if state.curr_player != self.color else +1
+
+        units = my_units + op_units
+        is_early_game = units < 15
+        is_late_game = 35 < units
 
         # Coin Parity
-        p = 0 if my_units == op_units else (-1.0 if my_units < op_units else +1.0) * (my_units)/(my_units + op_units)
+        parity = my_units - op_units
+        parity /= float(units)
 
-        # Corner Control
-        c = 25 * (self._get_corner_occupancy(state, self.color) - self._get_corner_occupancy(state, op_color))
+        # Stability
+        my_stability = sum(sum(POSITIONS[r][c] if color == self.color else 0 for c, color in enumerate(row)) for r, row in enumerate(state.board))
+        op_stability = sum(sum(POSITIONS[r][c] if color == op_color else 0 for c, color in enumerate(row)) for r, row in enumerate(state.board))
+        stability = (my_stability - op_stability)
+        stability /= float(TOTAL_POSITION_SCORE)
 
-        # Corner Closeness
-        l = -0.25 * (self._get_corner_close(state, self.color) - self._get_corner_close(state, op_color));
-        # Mobility
-        m = 0 if my_moves == op_moves else (-1.0 if my_moves < op_moves else +1.0) * my_moves/(my_moves + op_moves)
+        # Best Move
+        best_move = player_mod * max((POSITIONS[m[0]][m[1]] for m in moves))
+        best_move /= float(MAX_POSITION_SCORE)
 
-        return (10 * p) + c + l + 2 * m # + (74.396 * f) + (10 * d)
+        # Corner Occupancy
+        c = (self._get_corner_occupancy(state, self.color) / (self._get_corner_occupancy(state, op_color) * 2)) ** player_mod
+        c = player_mod * (5 ** c)
+        c /= 5 ** 4.01
+        # stability += c
+
+        # Can Win Bonus
+        bonus = 500 if my_units > 40 else (200 if my_units > 32 else (10 if units == 32 else 0))
+        bonus /= 500.0
+
+        if is_early_game:
+            h = -parity + 4 * stability
+        elif is_late_game:
+            h = 10 * parity + 50 * stability + 4 * bonus
+        else:
+            h = 2 * parity + 3 * stability + best_move
+
+        return min(max(h, -INFINITY + 1), INFINITY - 1)
     
     def _get_corner_occupancy(self, state, color):
         board = state.board
 
-        return ((board[0][0] == color) +
+        return float((board[0][0] == color) +
                (board[BOARD_ROWS-1][0] == color) +
                (board[0][BOARD_COLS-1] == color) +
-               (board[BOARD_ROWS-1][BOARD_COLS-1] == color))
+               (board[BOARD_ROWS-1][BOARD_COLS-1] == color)) + 0.1
 
     def _get_corner_close(self, state, color):
         board = state.board
