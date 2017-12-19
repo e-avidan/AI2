@@ -128,7 +128,8 @@ class Player(abstract.AbstractPlayer):
 
         # Corner Closeness
         l = self._get_corner_close(state, self.color) - self._get_corner_close(state, op_color)
-        l *= -1 # -12.5
+        # l *= -12.5
+        l = player_mod * 10 ** l
 
         # Mobility
         m = 0 if my_moves == op_moves else max(my_moves, op_moves)
@@ -136,14 +137,14 @@ class Player(abstract.AbstractPlayer):
 
         vec = (   p,    c,     l,    f,    d,    m)
         if is_early_game:
-            w = (-500, +500, +500, -100, +500, +500)
-        elif is_late_game:
-            w = (+500, +500, +500, +500, +999, +999)
+            w = (-500, +500, +500, +000, +999, +500)
+        elif not is_late_game:
+            w = (+500, +500, +100, +500, +500, +999)
         else:
-            w = (+999, +000, +100, +100, +0, +500)
+            w = (+999, +000, +100, +100, +000, +100) 
 
         h = sum((vec[i] * w[i] for i in range(0, len(vec))))
-        return h
+        return player_mod * h
 
     def _get_stability_value(self, state, target_color):
         return sum(sum(POSITIONS[r][c] if color == target_color else 0 for c, color in enumerate(row)) for r, row in enumerate(state.board))

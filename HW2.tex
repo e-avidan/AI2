@@ -62,14 +62,21 @@ However, the following must be taken into account
 
 \section*{E. Further Improvements}
 \subsection*{1. Expected Best Player}
-dsa
+We expect the Alpha-Beta player to perform best (assuming all players use the same heuristic), since
+\begin{itemize}
+\item The better player is, by definition, better than the simple player
+\item The better player is the same as the Mini-Max player when the search is constrained to a depth of $1$, so the Mini-Max player has the advantage
+\item The alpha-beta player - worst case - searches to the same depth as the Mini-Max player, and assuming pruning (remember $O(b^{\frac{3}{4} d})$ in the average case), it should perform best
+\end{itemize}
 
 \subsection*{2. Additional Methods}
 \subsubsection*{Selective Deepening}
-dsa
+This would allow us to improve our decision when facing noisy states in the maximal depth of the strategy tree (noisy, meaning that there is a substancial flactuation in values). Thus, our decision would become more informed. \\~\\
+Our design would consider ... TODO
 
 \subsubsection*{Time For Step}
-dsa
+This would allow us to distribute our runtime between steps, so that more important steps get more time, or vice versa simple steps are efficiently performed. \\~\\
+Our design would consider ... TODO
 
 \section*{F. Using a game Data Bank}
 \subsection*{1. \emph{Logistello} analysis}
@@ -77,13 +84,21 @@ dsa
 
 \subsection*{2. Data Bank}
 \subsubsection*{I. Opening Book Explanation}
-dsa
+An opening book is a data-structure which is based on recorder games, in which the most popular openings are stored in order to improve the performance of our player 
+\begin{itemize}
+\item It saves us from performing a heuristic search at the start of the game, and thus allows us to get results at depths that the runtime constraint could not allow us (in certain cases, probably not in ours where the depth is $10$)	
+\item Accesing the opening book should be in $O(1)$ time, thus allowing us to use our run time for different purposes (like performing a heuristic search even deeper than the book's depth allows us to consider)
+\end{itemize}
 
 \subsubsection*{II. 5 Most Popular Openings}
 dsa
 
 \subsubsection*{VI. Disadvantage of `Most Popular' Opening Book}
-dsa
+There are two disadvantages
+\begin{itemize}
+\item Our player is predictable, so a clever opponent could navigate us to a game state where they have the highest chance of winning
+\item Were ranking openings by their popularity --- not their efficiency. Like \emph{Logistello} did, it would be smarter to perform a regression over the game data in order to learn the best openings.
+\end{itemize}
 
 \subsubsection*{V. Further Possibilities for Usage of the Data Bank}
 dsa
