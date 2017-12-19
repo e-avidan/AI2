@@ -80,7 +80,14 @@ Our design would consider ... TODO
 
 \section*{F. Using a game Data Bank}
 \subsection*{1. \emph{Logistello} analysis}
-dsa
+\textbf{Logistello} uses a few evaluation methods to win
+\begin{itemize}
+\item Although the heuristic is also a linear combination of features, both features and their weights differ in 13 different game stages
+\item The features are based upon patterns (diagonals, rows, columns, edges, corners), and a simple parity calculation
+\item At the early stages of the game, it uses an opening book
+\item It uses the Prob-Cut algorithm which prunes more aggresively than $\alpha\beta$
+\item It doesn't play deterministically, and copies the opponent's winning moves --- so as not to lose twice in the same way
+\end{itemize}
 
 \subsection*{2. Data Bank}
 \subsubsection*{I. Opening Book Explanation}
