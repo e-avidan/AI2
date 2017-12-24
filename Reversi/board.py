@@ -125,7 +125,7 @@ class GameState:
         """This object can be inserted into a set or as dict key. NOTICE: Changing the object after it has been inserted
         into a set or dict (as key) may have unpredicted results!!!
         """
-        return hash(','.join([self.board[(i,j)]
+        return hash(','.join([self.board[i][j]
                               for i in range(BOARD_ROWS)
                               for j in range(BOARD_COLS)] + [self.curr_player]))
 
