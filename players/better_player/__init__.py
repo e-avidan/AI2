@@ -126,7 +126,7 @@ class Player(abstract.AbstractPlayer):
         op_cornerclose=self._get_corner_close(state, op_color)
         l = 0 if (my_cornerclose+op_cornerclose) == 0 else 100*(my_cornerclose-op_cornerclose)/float(my_cornerclose+op_cornerclose)
 
-        # Frontier Disks
+        # Frontier Discs
         my_frontier = self._get_frontier_value(state, self.color)
         op_frontier = self._get_frontier_value(state, op_color)
         f = 0 if (my_frontier + op_frontier) == 0 else 100*(my_frontier)/float(my_frontier + op_frontier)
@@ -140,7 +140,7 @@ class Player(abstract.AbstractPlayer):
 
 
     def _get_frontier_value(self, state, target_color):
-        return sum(sum(self._get_frontier_cell_value(state, x, y)  if color == target_color else 0 for y, color in enumerate(row)) for x, row in enumerate(state.board))#for (x,y) in self._get_disks_locations_by_color(state, target_color))
+        return sum(sum(self._get_frontier_cell_value(state, x, y)  if color == target_color else 0 for y, color in enumerate(row)) for x, row in enumerate(state.board))
 
     def _get_frontier_cell_value(self, state, x, y):
         for k in range(8):
