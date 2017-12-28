@@ -38,17 +38,21 @@ $$
 $$
 \item \textbf{Corner Control} - Corners are very important in Reversi, so we will reward the player for controlling conrners, and similarly punish them for giving up corners to the opponent
 \item \textbf{Corner Closeness} - In contrast with common intuition to the previous factor, being close to a corner will allow the opponent to get many coins in a single move, so we will reward the player when they force the opponent into this state
-\item \textbf{Mobility} - SImilar to coin parity, only this time we look at the number of possible moves each player has \emph{from the current state} (as if they were playing)
+\item \textbf{Mobility} - Similar to coin parity, only this time we look at the number of possible moves each player has \emph{from the current state} (as if they were playing)
+\item \textbf{Stability} - On the board, each square has a value for the game, and this value depends on square location on the board. The more this value is greater, the more this square is important for the game. Summarize all the values of the player's square, give the stability of the player against his opponent.
+\item \textbf{Frontier Discs} - Discs that are close by at list one empty square, are more volatile because the chance of being flipped is greater. So, we want to minimize this number of discs in order to keep more discs.
 \end{itemize}
 
-Finally, a weighted average will be computed.
+
+Finally, a weighted average will be computed. Each parameter get a weight according to it's importance.
 
 \subsection*{2. Heuristic Motivation}
 Explained in the previous segment
 
 \subsection*{4. Simple Player vs. Better Player}
-The better player won all 6 matches (since we tuned the weights...) \\~\\
-Since both players are deterministic, there is no sense in running multiple occurances of the same setup...
+The better player won all 6 matches .
+The better player, has more sophisticated heuristic. This heuristic consider the number of discs, but also calculate extra parameters and pay attention especially for corners, that are very important in Reversi.
+Since both players are deterministic, there is no sense in running multiple occurances of the same setup.
 
 \section*{D. Alpha-Beta Player}
 \subsection*{3. Comparison with Min-Max player}
