@@ -75,12 +75,15 @@ We expect the Alpha-Beta player to perform best (assuming all players use the sa
 
 \subsection*{2. Additional Methods}
 \subsubsection*{Selective Deepening}
-This would allow us to improve our decision when facing noisy states in the maximal depth of the strategy tree (noisy, meaning that there is a substancial flactuation in values). Thus, our decision would become more informed. \\~\\
-Our design would consider ... TODO
+This would allow us to improve our decision when facing noisy states in the maximal depth of the strategy tree (noisy, meaning that there is a substancial flactuation in values). Thus, our decision would become more informed. \\
+In addition, Selective Deepening  prevent wasting time on noisy states and consume the time more efficiently. Thus, the algorithm can  Deepen more than before and thus get more informed decision.
+\\~\\
+Our design would consider the heuristic value of each state, depend on limited depth search. Each step of deepening, we remove states that their heuristic value is under defined threshold, or choose fixed number of top states to continue with.
 
 \subsubsection*{Time For Step}
 This would allow us to distribute our runtime between steps, so that more important steps get more time, or vice versa simple steps are efficiently performed. \\~\\
-Our design would consider ... TODO
+Our design would consider in the player state each step. We can compare the player's heuristic against the opponent's heuristic and produce a value that measure how "bad" the state of the player.\\
+This evaluation should be calculated before the search step, provide more time cosider to "how bad the player's state" or continue until the player finds a way to get out from this "bad condition".
 
 \section*{F. Using a game Data Bank}
 \subsection*{1. \emph{Logistello} analysis}
