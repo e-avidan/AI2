@@ -23,7 +23,6 @@ class Player(ParentPlayer):
 
         # Get final run, unless no time for move and then just any move
         res = list(runs)
-        print (self, len(res))
         res = (res or [(None, None)])[-1][1]
         res = res or possible_moves[random.choice(range(len(possible_moves)))]
 
