@@ -105,7 +105,13 @@ An opening book is a data-structure which is based on recorder games, in which t
 \end{itemize}
 
 \subsubsection*{II. 5 Most Popular Openings}
-dsa
+We add the function \emph{ExtractMostPopularOpenningMoves} to \emph{utils.py}.
+The fifth most popular openning moves are:(before mirroring to adapt the data to our game)\\
+1 = '+d3-c5+e6-f5+f6-e3+c3-f3+c4-b4' : 13493\\
+2 = '+d3-c5+f6-e3+c3-f5+e6-f3+c4-b4' : 13493\\
+3 = '+d3-c5+f6-f5+e6-e3+c3-f3+c4-b4' : 13493\\
+4 =  '+d3-c5+e6-f5+f6-e3+d6-f7+g6-e7' : 7432\\
+5 = '+d3-c5+f6-f5+e6-e3+d6-f7+g6-e7' : 7432\\
 
 \subsubsection*{VI. Disadvantage of `Most Popular' Opening Book}
 There are two disadvantages
@@ -115,7 +121,17 @@ There are two disadvantages
 \end{itemize}
 
 \subsubsection*{V. Further Possibilities for Usage of the Data Bank}
-dsa
+The data bank can be using for:
+\begin{itemize}
+\item We can create top opening moves in a different way. The ranking will use also the game outcome.\\
+Our design consider calculation of new score for the opening moves-
+$$frequency \cdot \frac {winning - losses}{winning+ losses} $$
+Opening moves of loosing games will not be used at all, and opening moves of winning games will get higher score according to it's frequency.
+\item The book is usefull to learn techniques of players, and we can add parameter to our heuristic, that give every state a possibility for winning (by observing the winning vs the losses). By finding a state that has more winnings, our  heuristic will become more informed.\\
+Our design consider the calculation:
+$$\frac {100 \cdot Frequency}{Total} \cdot \frac {winning - losses}{winning+ losses} $$
+This way, we punish our state according to how bad is our state observing old games and reward the player for being in a good state that have more possibility to win. We should consider the weight of this parameter. If the bank is dynamic, also the weight should be dynamic.
+\end{itemize}
 
 \section*{G. Conclusions}
 \subsection*{1 .Graph of Scores}

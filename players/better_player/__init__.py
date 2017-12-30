@@ -3,11 +3,11 @@
 # ===============================================================================
 
 import abstract
-from utils import INFINITY, run_with_limited_time, ExceededTimeError, _expand_state
+from utils import INFINITY, run_with_limited_time, ExceededTimeError, _expand_state,ExtractMostPopularOpenningMoves
 from Reversi.consts import EM, OPPONENT_COLOR, BOARD_COLS, BOARD_ROWS, TIE
 import time
 import copy
-from collections import defaultdict
+from Reversi.board import GameState
 
 # ===============================================================================
 # Player
@@ -40,10 +40,22 @@ class Player(abstract.AbstractPlayer):
         self.turns_remaining_in_round = self.k
         self.time_remaining_in_round = self.time_per_k_turns
         self.time_for_current_move = self.time_remaining_in_round / self.turns_remaining_in_round - 0.05
+        self._last_game_state = ''
+        self._last_game_board = GameState().board
+        self.opening_dict = ExtractMostPopularOpenningMoves(70)
+        self.opponent_sign = '-' if self.color == 'X' else '+'
 
     def get_move(self, game_state, possible_moves):
         self.clock = time.time()
         self.time_for_current_move = self.time_remaining_in_round / self.turns_remaining_in_round - 0.05
+
+        open_move = None if self._last_game_state == None else self._opening_move(game_state.board)
+
+        if  open_move!= None:
+            return open_move
+        else:
+            self._last_game_state = None
+
         if len(possible_moves) == 1:
             return possible_moves[0]
 
@@ -190,6 +202,26 @@ class Player(abstract.AbstractPlayer):
 
     def __repr__(self):
         return '{} {}'.format(abstract.AbstractPlayer.__repr__(self), 'better')
+
+    def _opening_move(self, board):
+        self._updateNewOpponentMove(board)
+
+        nextMove = self.opening_dict.get(self._last_game_state)
+        if nextMove == None: return None
+
+        self._last_game_state += nextMove
+        coord = [ord(nextMove[1]) -97, int(nextMove[2]) - 1]
+        self._last_game_board[coord[0]][coord[1]] = self.color
+        return coord
+
+    def _updateNewOpponentMove(self, board):
+
+        for x in range(8):
+            for y in range(8):
+                    if self._last_game_board[x][y] == ' ' and board[x][y] != ' ':
+                        self._last_game_state += self.opponent_sign + chr(x + 97) + str(y + 1)
+                        self._last_game_board = board
+                        return True;
 
 # c:\python35\python.exe run_game.py 3 3 3 y better_player random_player
 

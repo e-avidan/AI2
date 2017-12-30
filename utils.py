@@ -6,6 +6,7 @@ from multiprocessing import Queue
 import time
 import copy
 import operator
+import collections
 
 INFINITY = float(600000000)
 
@@ -178,3 +179,41 @@ def provide_while(iter, stop):
             return
         
         yield i
+
+# Extarct the most popular moves with their ranking
+def ExtractMostPopularOpenningMoves(n):
+
+    book = open("book.gam", "r")
+    moves = []
+
+    for line in book:
+        moves.append(line[:30])
+
+    moves.sort()
+    counter = collections.Counter(moves)
+    top_n_moves = _MirrorBook(sorted(counter, key=counter.get, reverse=True)[:n])
+
+    top_n_moves_dict = {}
+
+    for l in range(0, 28, 3):
+        for item in top_n_moves:
+            if item[:l]not in top_n_moves_dict.keys():top_n_moves_dict[item[:l]] = item[l:l+3]
+
+    return top_n_moves_dict
+
+def _MirrorBook(top_n_moves):
+    dict = {'a' : 'h', 'b':'g', 'c':'f', 'd':'e','e': 'd', 'f': 'c','g':'b','h':'a'}
+    shift_top_n_move = []
+    for move in top_n_moves:
+        temp = ''
+        for c in move:
+
+            if c.isalpha():
+                temp+= dict[c]
+            else:
+                temp += c
+        shift_top_n_move.append(temp)
+
+    return shift_top_n_move
+
+
