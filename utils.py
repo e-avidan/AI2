@@ -7,6 +7,7 @@ import time
 import copy
 import operator
 import collections
+from Reversi.consts import OPPONENT_COLOR
 
 INFINITY = float(600000000)
 
@@ -94,7 +95,7 @@ class MiniMaxAlgorithm:
         depth_exceeded = depth <= 0 and not (self.selective_deepening and self.selective_deepening(state));
         if depth_exceeded:
             return (self.utility(state), None)
-
+        state.curr_player = self.my_color if maximizing_player else OPPONENT_COLOR[self.my_color]
         moves = state.get_possible_moves()
         if len(moves) == 0: # todo TIES
             winner = state.get_winner()
@@ -148,6 +149,7 @@ class MiniMaxWithAlphaBetaPruning:
         :return: A tuple: (The alpha-beta algorithm value, The move in case of max node or None in min mode)
         """
         depth_exceeded = depth <= 0 and not (self.selective_deepening and self.selective_deepening(state));
+        state.curr_player = self.my_color if maximizing_player else OPPONENT_COLOR[self.my_color]
         moves = state.get_possible_moves()
         if depth_exceeded or len(moves) == 0:
             return (self.utility(state), None)
@@ -215,5 +217,3 @@ def _MirrorBook(top_n_moves):
         shift_top_n_move.append(temp)
 
     return shift_top_n_move
-
-
