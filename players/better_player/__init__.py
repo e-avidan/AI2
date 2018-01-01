@@ -7,6 +7,7 @@ from utils import INFINITY, run_with_limited_time, ExceededTimeError, _expand_st
 from Reversi.consts import EM, OPPONENT_COLOR, BOARD_COLS, BOARD_ROWS, TIE
 import time
 import copy
+import numpy as np
 from Reversi.board import GameState
 
 # ===============================================================================
@@ -126,7 +127,7 @@ class Player(abstract.AbstractPlayer):
         # Stability
         my_stab = self._get_stability_value(state, self.color)
         op_stab =self._get_stability_value(state, op_color)
-        s = 0  if (my_stab + op_stab) == 0 else 50*(my_stab - op_stab)/float(my_stab + op_stab)
+        s = 0 if (my_stab + op_stab) == 0 else 50*(my_stab - op_stab)/float(my_stab + op_stab)
 
         # Corner Occupancy
         my_corners = self._get_corner_occupancy(state, self.color)
@@ -138,31 +139,20 @@ class Player(abstract.AbstractPlayer):
         op_cornerclose=self._get_corner_close(state, op_color)
         l = 0 if (my_cornerclose+op_cornerclose) == 0 else 100*(my_cornerclose-op_cornerclose)/float(my_cornerclose+op_cornerclose)
 
-        # Frontier Discs
-        my_frontier = self._get_frontier_value(state, self.color)
-        op_frontier = self._get_frontier_value(state, op_color)
-        f = 0 if (my_frontier + op_frontier) == 0 else 100*(my_frontier)/float(my_frontier + op_frontier)
+        vec = (p, c, l, m, s)
 
-        vec = (p, c, l, m, s, f)
-        w = (+10, +801, +382, +79, +100, 75)
+        if units < 16:
+            w = (0, 15, 5, 30, 50)
+        elif units < 32:
+            w = (5, 15, 10, 20, 40)
+        elif units < 48:
+            w = (15, 40, 15, 10, 20)
+        else:
+            w = (40, 30, 5, 5, 20)
 
         h = sum((vec[i] * w[i] for i in range(0, len(vec))))
 
         return player_mod * h
-
-
-    def _get_frontier_value(self, state, target_color):
-        return sum(sum(self._get_frontier_cell_value(state, x, y)  if color == target_color else 0 for y, color in enumerate(row)) for x, row in enumerate(state.board))
-
-    def _get_frontier_cell_value(self, state, x, y):
-        for k in range(8):
-            x += X[k]
-            y += Y[k]
-            if x >= 0 and x < 8 and y >= 0 and y < 8:
-                if state.board[x][y] == ' ':
-                    return 1
-
-        return 0
 
     def _get_stability_value(self, state, target_color):
         return sum(sum(POSITIONS[r][c] if color == target_color else 0 for c, color in enumerate(row)) for r, row in

@@ -5,6 +5,8 @@
 \usepackage{amsmath}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage[table,xcdraw]{xcolor}
 
 \begin{document}
 
@@ -135,12 +137,58 @@ This way, we punish our state according to how bad is our state observing old ga
 
 \section*{G. Conclusions}
 \subsection*{1 .Graph of Scores}
-dsa
-
+\includegraphics{experiments}
 \subsection*{2. Table of Scores}
-dsa
+\begin{table}[htp]
+\centering
+\caption{Player's Scores}
+\label{my-label}
+\begin{tabular}{@{}|
+>{\columncolor[HTML]{C0C0C0}}l |lll@{}}
+\toprule
+\textbf{player}              & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}\textbf{2}} & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}\textbf{10}} & \multicolumn{1}{l|}{\cellcolor[HTML]{C0C0C0}\textbf{50}} \\ \midrule
+\textbf{alpha\_beta\_player} & 16.0                                                    & 6.5                                                      & 10.0                                                     \\ \cmidrule(r){1-1}
+\textbf{better\_player}      & 20.0                                                    & 21.0                                                     & 16.5                                                     \\ \cmidrule(r){1-1}
+\textbf{min\_max\_player}    & 15.0                                                    & 23.0                                                     & 25.5                                                     \\ \cmidrule(r){1-1}
+\textbf{simple\_player}      & 9.0                                                     & 9.5                                                      & 8.0                                                      \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \subsection*{3. Analysis of Scores}
-dsa
+Simple versus Better:
+\begin{itemize}
+\item Better wins Simple everytime. Better is more sophisticated heuristic, that consider the Coin Parity parameter (similar to simple) but add more features to make the heuristic more informed.
+\item This is not suprising since we compre the players in exercise B.
+\end{itemize}
+Simple versus Minimax:
+\begin{itemize}
+\item Minimax wins simple most of the time. Minimax use the same heuristic as Better, so it is not suprising it overpower Simple.
+\item Because Minimax checks always all the brances of the tree, it suppose not to loose since it use Better heuristic. Those few losses may indicate that there is a problem in the weights of the parameters in the heuristic. 
+\end{itemize}
+Simple versus AlphaBeta:
+\begin{itemize}
+\item This result is suprising. First, AlphaBeta wins Simple about half of the games, and Simple wins AlphaBeta about half of the games.
+\item We assume, that AlphaBeta use the heuristic very good until specific depth. When he has time, he gets deeper and deeper and it may change the whole value of the score. That can be cause of bad scoring in specific state of the game.(Depends on the weights of every parameter in calculation)
+\item Another assumption is that AlphaBeta prune brances that are possible to be good deeper in the tree, and that may cause the algorithm miss good strategies.
+\end{itemize}
+Better versus Minimax:
+\begin{itemize}
+\item Minimax wins Better most of the times. This results were predicted, because Better is like Minimax, but with limitation to 1 deepening. Since MiniMax can get more deeper, it is more informed and can see further than Better.
+\item We can notice, that on 2 seconds games, MiniMax is almost equal to Better. We assume that MiniMax doesn't have enough time   to get deeper.
+\end{itemize}
+Better versus AlphaBeta:
+\begin{itemize}
+\item Another suprsing result. It's looks like Better has more winnings than AlphaBeta in theirs games.
+\item The reasons, may be similar to thos we mentioned earlier on Simple versus AlphaBeta examination.
+\end{itemize}
+\newpage
+Minimax versus AlphaBeta:
+\begin{itemize}
+\item Again, surprisingly, MiniMax is much better than AlphaBeta. On 2 seconds games they are almost equal, but on 10 and 50 seconds games MiniMax has much more winnings. 
+\item The reason, is again, one of one of the previoud assumption. Those results, clarify that it's more likely that the weights of the heuristic's parameters in a specific states are not good.Those bad weights may cause mistakes on prunning and bad decisions.
+\end{itemize}
 
+In conculsion, the graph different from what we expected. We expected to see AlphaBeta wins most of the time, and we less winnings for Simple.\\
+In regular competition, Better's hueristic wins Simple's heuristic, but when we use more complex algorithm like MiniMax and AlphaBeta suprising results can be occured.\\
+An extreme point, can be seen on MiniMax line on 50 seconds. This extreme point is very rational, because MiniMax have more time to get deeper in the tree and make a better decesion.AlphaBeta rising on 50 seconds indicates that there is a problem with the weights in specific depth of the tree, that make this algorithm loose(Mostly cause of bad prunning).
 \end{document}

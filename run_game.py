@@ -136,8 +136,10 @@ class GameRunner:
             winner = self.make_winner_result(TIE)
         elif x_player_exceeded:
             winner = self.make_winner_result(O_PLAYER)
+            print("time exceeded for x")
         elif o_player_exceeded:
             winner = self.make_winner_result(X_PLAYER)
+            print("time exceeded for o")
 
         if winner:
             self.end_game(winner)
